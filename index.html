@@ -1,54 +1,282 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Nicole Weissman</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RomComCal</title>
 
-  <style>
-    body {
-      background-color: #f4efe6;
-      color: #111;
-      font-family: Arial, Helvetica, sans-serif;
-      margin: 60px;
-    }
+<style>
+:root{
+  --bg:#e7e6e4;
+  --periwinkle:#aeb6e6;
+  --lavender:#e7a6e9;
+  --chartreuse:#dbe97a;
+  --ink:#000;
+}
 
-    h1 {
-      font-size: 56px;
-      text-transform: uppercase;
-      border-bottom: 5px solid black;
-      padding-bottom: 12px;
-      letter-spacing: 2px;
-    }
+body{
+  background: var(--bg);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 60px 30px;
+  color: var(--ink);
+}
 
-    p {
-      font-size: 20px;
-      max-width: 650px;
-      line-height: 1.4;
-    }
+.container{
+  max-width: 1000px;
+  margin: auto;
+}
 
-    a {
-      color: black;
-      text-decoration: none;
-      border-bottom: 2px solid black;
-    }
+.pill{
+  display:inline-block;
+  background: var(--chartreuse);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
 
-    a:hover {
-      background-color: black;
-      color: #f4efe6;
-    }
-  </style>
+h1{
+  font-size: 72px;
+  text-transform: uppercase;
+  margin: 0 0 12px 0;
+  letter-spacing: 3px;
+  color: var(--periwinkle);
+  -webkit-text-stroke: 2px var(--ink);
+}
+
+.subhead{
+  font-size: 20px;
+  line-height: 1.5;
+  margin: 0 0 26px 0;
+  max-width: 900px;
+}
+
+.toolbar{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom: 34px;
+}
+
+/* Buttons = simple rectangles */
+.toolbar button{
+  background: var(--chartreuse);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  padding: 12px 18px;
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+}
+.toolbar button:hover{
+  background: var(--lavender);
+}
+
+.list{
+  border-top: 3px solid var(--ink);
+}
+
+.event{
+  display:grid;
+  grid-template-columns: 140px 1fr;
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 2px solid var(--ink);
+}
+
+/* Date starburst (clean SVG outline) */
+.date{
+  width: 120px;
+  height: 120px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon fill='%23e7a6e9' stroke='%23000' stroke-width='4' stroke-linejoin='round' points='50,2 60,12 74,6 76,22 94,26 86,40 98,50 86,60 94,74 76,78 74,94 60,88 50,98 40,88 26,94 24,78 6,74 14,60 2,50 14,40 6,26 24,22 26,6 40,12'/></svg>");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.date .month{
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.date .day{
+  font-weight: 900;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.details .title{
+  font-weight: 900;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.details .quote{
+  margin: 0 0 6px 0;
+}
+
+.details .meta{
+  font-size: 13px;
+  opacity: .75;
+}
+
+.details .meta{
+  font-size: 13px;
+  opacity: .75;
+}
+
+/* ADD THIS RIGHT HERE */
+.note{
+  font-size: 14px;
+  line-height: 1.4;
+  max-width: 900px;
+  margin: -18px 0 28px 0;
+  opacity: 0.85;
+}
+
+.note code{
+  background: rgba(0,0,0,0.08);
+  border: 2px solid var(--ink);
+  padding: 1px 6px;
+}
+
+</style>
 </head>
 
 <body>
+<div class="container">
+  <div class="pill">THE UNOFFICIAL</div>
 
-  <h1>Hello.</h1>
+  <h1>Rom Com Calendar</h1>
 
-  <p>
-    I made this page.
+  <p class="subhead">
+    Make sure you never miss a Rom Com Holiday with this handy calendar.
+    See the dates below, click to download a graphic, or add to your calendar.
   </p>
 
-  <p>
-    More soon.
-  </p>
+  <div class="toolbar">
+    <button id="downloadGraphic">Download Graphic</button>
+    <button id="downloadICS">Add to Calendar</button>
+  </div>
+
+<p class="note">
+  Calendar tip: the <code>.ics</code> file works with Apple Calendar + Outlook, and you can import it into Google Calendar
+  (Google Calendar → Settings → Import &amp; export → Import).
+</p>
+  <div class="list" id="eventList"></div>
+</div>
+
+<script>
+const EVENTS = [
+  {month:2, day:2, title:"Groundhog Day Loop Begins", quote:"It's Groundhog Day... again.", source:"Groundhog Day (1993)"},
+  {month:2, day:29, title:"Leap Day Proposal Attempt", quote:"It's tradition in Ireland.", source:"Leap Year (2010)"},
+  {month:3, day:24, title:"Saturday Detention", quote:"Dear Mr. Vernon...", source:"The Breakfast Club (1985)"},
+  {month:4, day:25, title:"Perfect Date Weather", quote:"Not too hot, not too cold. All you need is a light jacket.", source:"Miss Congeniality (2000)"},
+  {month:5, day:26, title:"Jenna Rink's 13th Birthday", quote:"Thirty, flirty, and thriving.", source:"13 Going on 30 (2004)"},
+  {month:10, day:3, title:"October 3rd", quote:"On October 3rd, he asked me what day it was.", source:"Mean Girls (2004)"},
+  {month:11, day:20, title:"Love Actually Begins", quote:"Five weeks before Christmas.", source:"Love Actually (2003)"},
+  {month:12, day:31, title:"New Year's Eve Confession", quote:"If you can't say it on New Year's, when can you?", source:"When Harry Met Sally (1989)"}
+];
+
+function monthName(m){
+  return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m-1];
+}
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+
+function render(){
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+  EVENTS
+    .slice()
+    .sort((a,b)=> (a.month*100+a.day)-(b.month*100+b.day))
+    .forEach(e=>{
+      const div=document.createElement("div");
+      div.className="event";
+      div.innerHTML = `
+        <div class="date">
+          <div class="month">${monthName(e.month)}</div>
+          <div class="day">${e.day}</div>
+        </div>
+        <div class="details">
+          <div class="title">${e.title}</div>
+          <div class="quote">"${e.quote}"</div>
+          <div class="meta">${e.source}</div>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+}
+render();
+
+document.getElementById("downloadGraphic").addEventListener("click", () => {
+  window.location.href = "rom-com-cal-graphic.png";
+});
+
+/* ICS download */
+document.getElementById("downloadICS").addEventListener("click", () => {
+  const now = new Date();
+  const dtstamp = `${now.getUTCFullYear()}${pad2(now.getUTCMonth()+1)}${pad2(now.getUTCDate())}T${pad2(now.getUTCHours())}${pad2(now.getUTCMinutes())}${pad2(now.getUTCSeconds())}Z`;
+
+  let ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//RomComCal//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+`;
+
+  EVENTS.forEach(e=>{
+    const year = 2026;
+    const start = `${year}${pad2(e.month)}${pad2(e.day)}`;
+
+    const startDate = new Date(Date.UTC(year, e.month-1, e.day));
+    const endDate = new Date(startDate.getTime() + 24*60*60*1000);
+    const end = `${endDate.getUTCFullYear()}${pad2(endDate.getUTCMonth()+1)}${pad2(endDate.getUTCDate())}`;
+
+    // Simple escaping for ICS fields
+    const summary = `${monthName(e.month)} ${e.day} — ${e.title}`.replace(/,/g,"\\,").replace(/;/g,"\\;").replace(/\n/g,"\\n");
+    const desc = `${e.quote} — ${e.source}`.replace(/,/g,"\\,").replace(/;/g,"\\;").replace(/\n/g,"\\n");
+
+    ics += `BEGIN:VEVENT
+UID:romcomcal-${pad2(e.month)}${pad2(e.day)}@romcomcal
+DTSTAMP:${dtstamp}
+SUMMARY:${summary}
+DESCRIPTION:${desc}
+DTSTART;VALUE=DATE:${start}
+DTEND;VALUE=DATE:${end}
+RRULE:FREQ=YEARLY
+END:VEVENT
+`;
+  });
+
+  ics += "END:VCALENDAR";
+
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "romcomcal.ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+</script>
 
 </body>
 </html>
